@@ -58,16 +58,28 @@ export function ScrollytellingSection() {
     [50, 10, 50, 10, 50]
   );
 
-  const sectionHeight = storySteps.length * 100; // vh per step
+  const backgroundGradient = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.5, 0.75, 1],
+    [
+      "linear-gradient(to bottom right, #3b82f6, #9333ea)",
+      "linear-gradient(to bottom right, #9333ea, #ec4899)",
+      "linear-gradient(to bottom right, #ec4899, #ef4444)",
+      "linear-gradient(to bottom right, #ef4444, #f97316)",
+      "linear-gradient(to bottom right, #3b82f6, #9333ea)",
+    ]
+  );
+
+  const sectionHeight = 150; // Fixed 150vh total height
 
   return (
     <section className="relative bg-black">
       <div ref={containerRef} style={{ height: `${sectionHeight}vh` }}>
-        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+        <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden py-8">
           <div className="relative w-full max-w-6xl mx-auto px-4">
-            <div className="text-center mb-16">
+            <div className="text-center mb-4">
               <motion.h2
-                className="text-6xl md:text-8xl font-black text-white mb-4"
+                className="text-4xl md:text-6xl font-black text-white mb-2"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1 }}
@@ -75,7 +87,7 @@ export function ScrollytellingSection() {
                 STORY
               </motion.h2>
               <motion.p
-                className="text-xl text-gray-300"
+                className="text-lg text-gray-300"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.2 }}
@@ -84,45 +96,44 @@ export function ScrollytellingSection() {
               </motion.p>
             </div>
 
-            <div className="relative h-96 flex items-center justify-center">
+            <div className="relative h-64 flex items-center justify-center">
               <motion.div
                 style={{
                   scale,
                   rotate,
                   borderRadius,
                 }}
-                className="w-64 h-64 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/30 flex items-center justify-center relative overflow-hidden"
+                className="w-48 h-48 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/30 flex items-center justify-center relative overflow-hidden"
               >
                 <motion.div
                   className="absolute inset-0 opacity-30"
                   style={{
-                    background: scrollYProgress
-                      .to([0, 0.25, 0.5, 0.75, 1], [
-                        "linear-gradient(to bottom right, #3b82f6, #9333ea)",
-                        "linear-gradient(to bottom right, #9333ea, #ec4899)",
-                        "linear-gradient(to bottom right, #ec4899, #ef4444)",
-                        "linear-gradient(to bottom right, #ef4444, #f97316)",
-                        "linear-gradient(to bottom right, #3b82f6, #9333ea)",
-                      ]),
+                    background: backgroundGradient,
                   }}
                 />
 
                 <div className="relative z-10 text-center">
                   {storySteps.map((step, index) => {
-                    const start = index / storySteps.length;
-                    const end = (index + 1) / storySteps.length;
+                    // Adjusted icon opacity ranges to prevent overlap
+                    const stepProgress = 1 / storySteps.length;
+                    const start = index * stepProgress;
+                    const fadeInEnd = start + stepProgress * 0.3;
+                    const fadeOutStart = start + stepProgress * 0.7;
+                    const end = (index + 1) * stepProgress;
+                    
                     const opacity = useTransform(
                       scrollYProgress,
-                      [start, end],
-                      [0, 1]
+                      [start, fadeInEnd, fadeOutStart, end],
+                      [0, 1, 1, 0]
                     );
+                    
                     return (
                       <motion.div
                         key={step.id}
                         className="absolute inset-0 flex items-center justify-center"
                         style={{ opacity }}
                       >
-                        <step.icon className="w-16 h-16 text-white" />
+                        <step.icon className="w-12 h-12 text-white" />
                       </motion.div>
                     );
                   })}
@@ -130,14 +141,19 @@ export function ScrollytellingSection() {
               </motion.div>
             </div>
 
-            <div className="mt-16 text-center relative h-32">
+            <div className="mt-4 text-center relative h-24">
               {storySteps.map((step, index) => {
-                const start = index / storySteps.length;
-                const end = (index + 1) / storySteps.length;
+                // Fixed text opacity ranges to prevent overlap
+                const stepProgress = 1 / storySteps.length;
+                const start = index * stepProgress;
+                const fadeInEnd = start + stepProgress * 0.2;
+                const fadeOutStart = start + stepProgress * 0.8;
+                const end = (index + 1) * stepProgress;
+
                 const opacity = useTransform(
                   scrollYProgress,
-                  [start, end],
-                  [0, 1]
+                  [start, fadeInEnd, fadeOutStart, end],
+                  [0, 1, 1, 0]
                 );
 
                 return (
@@ -146,10 +162,10 @@ export function ScrollytellingSection() {
                     className="absolute inset-0 flex flex-col items-center justify-center"
                     style={{ opacity }}
                   >
-                    <h3 className="text-4xl font-bold text-white mb-4">
+                    <h3 className="text-2xl font-bold text-white mb-2">
                       {step.title}
                     </h3>
-                    <p className="text-lg text-gray-300 max-w-2xl">
+                    <p className="text-sm text-gray-300 max-w-xl">
                       {step.content}
                     </p>
                   </motion.div>
